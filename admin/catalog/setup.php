@@ -1,4 +1,5 @@
 <?php 
+	// echo $base;exit();
 	define('BASE', $base.'admin/');
 	define('BASE_CATALOG', BASE.'catalog/');
 	define('THEME','theme');

@@ -11,7 +11,7 @@
 	    		'limit' => '0,10'
 	    	);
 	    	$data['listTakeEvent'] = array();
-			// $data['listTakeEvent'] = $event->listTakeEvent($data_select);
+			$data['listTakeEvent'] = $event->listTakeEvent($data_select);
 	    	$this->view('dashboard/dashboard',$data);
 	    }
 
