@@ -1,0 +1,151 @@
+<!-- Page Content  -->
+<div id="content-page" class="content-page">
+   <div class="container-fluid">
+      <div class="row">
+         <div class="col-sm-12">
+            <div class="iq-card">
+               <div class="iq-card-header d-flex justify-content-between">
+                  <div class="iq-header-title">
+                     <h4 class="card-title">สรุปผลการเข้าร่วมกิจกรรมของนักศึกษา</h4>
+                  </div>
+                  <div class="iq-card-header-toolbar d-flex align-items-center">
+                     <?php if (count($result)>0) { ?>
+                        <a href="<?php echo route('report/export'.'&type=3&stu_year='.$stu_year.'&id_group='.$id_group.'&branch_code='.$branch_code);?>" class="btn btn-primary">Export Excel</a>
+                     <?php } ?>
+
+                  </div>
+               </div>
+               <div class="iq-card-body">
+                  <form action="<?php echo $action;?>" method="POST" class="mb-4">
+                     <!-- <input type="hidden" name="route" value="report/statusActivity"> -->
+                     <div class="row">
+                        <div class="col">
+                           <label for="">ปีการศึกษา (ปป)</label>
+                           <input type="text" class="form-control" name="stu_year" placeholder="สองหลัก เช่น 62" value="<?php echo $stu_year;?>">
+                        </div>
+                        <div class="col">
+                           <label for="">คณะ</label>
+                           <?php Form::select('id_group',$list_group,'','id_group','group_name',is($data,'id_group')); ?>
+                        </div>
+                        <div class="col">
+                           <label for="">สาขา</label>
+                           <!-- <?php Form::select('branch_code',$list_branch,'','branch_code','branch_name',is($data,'branch_code')) ?> -->
+                           <div id="htmlbranch"></div>
+                        </div>
+                        <div class="col">
+                           <label for="">&nbsp;</label>
+                           <div>
+                              <input type="submit" value="ค้นหา" class="btn btn-primary btn-block btn-lg">
+                           </div>
+                        </div> 
+                     </div>
+                  </form>
+                  <div class="table-responsive">
+                     <table class="table mb-0 table-bordered" id="datatables">
+                        <thead>
+                           <tr>
+                              <th>ลำดับ</th>
+                              <th>รหัสนักศึกษา</th>
+                              <th>ชื่อ - นามสกุล</th>
+                              <th>คณะ</th>
+                              <th>สาขาวิชา</th> 
+                              <?php foreach ($list_eventtype as $value) { ?>
+                              <th><?php echo $value['event_type_name']; ?></th>
+                              <?php } ?>
+                              <th>สรุปรวมหน่วยกิจกรรม</th>
+                              <th>เกณฑ์กิจกรรม</th>
+                              <th>เกณฑ์ใบรับรอง</th>
+                           </tr>
+                        </thead>
+                        <tbody>
+                           <?php foreach ($result as $key => $value): ?>
+                           <tr>
+                              <td><?php echo ++$key; ?></td>
+                              <td><?php echo $value['stu_code']; ?></td>
+                              <td><?php echo $value['stu_prefix'].' '.$value['stu_name'].' '.$value['stu_lname']; ?></td>
+                              <td><?php echo $value['group_name']; ?></td>
+                              <td><?php echo $value['branch_name']; ?></td> 
+                              <?php foreach ($list_eventtype as $et) { ?>
+                              <td class="text-center"><?php echo $value['event_type'][$et['id_event_type']]; ?></td>
+                              <?php } ?>
+                              <td class="text-center">
+                                 <?php echo $value['sum_event_type']; ?>
+                              </td>
+                              <td class="text-center">
+                                 <?php echo $value['pass']; ?>
+                              </td>
+                              <td class="text-center">
+                                 <?php echo $value['receipt']; ?>
+                              </td>
+                           </tr>
+                           <?php endforeach ?>
+                        </tbody>
+                     </table>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+
+
+<script type="text/javascript">
+$(document).ready(function () {
+   // console.log('<?php echo $column;?>');
+
+   // var paramemter = new Object();
+   // paramemter.stu_year    = '<?php echo get('stu_year');?>';;
+   // paramemter.id_group = '<?php echo get('id_group');?>';
+   // paramemter.branch_code    = '<?php echo get('branch_code');?>';
+
+   // var path  = '<?php echo route('report/ajaxReportStatusActivity');?>';
+   // var table = $('#datatables');
+   // table.DataTable({
+   //    processing : true,
+   //    serverSide : true,
+   //    order: [[1, "asc"]],
+   //    columnDefs: [
+   //       { targets: 0, orderable: false },
+   //       { targets: 7, orderable: false },
+   //       // { className: "text-center", "targets": [ 0,1,2,3,4,8 ] },
+   //       // { className: "text-right", "targets": [ 5,6,7 ] }
+   //    ],
+   //    ajax : {
+   //       url : path,
+   //       type: "POST",
+   //       data: paramemter,
+   //       dataFilter: function(data){
+   //          var json = jQuery.parseJSON( data );
+   //          console.log(json);
+   //          return JSON.stringify( json ); // return JSON string
+   //       }
+   //    },
+   //    dataSrc: 'data',
+   //    columns: <?php echo $column;?>,
+   // });
+});
+   $(document).ready(function() {
+      $('#report').addClass('menu-open');
+      $('#report').find('.iq-submenu').addClass('menu-open');
+      $('#r3').addClass('active');
+
+      <?php if (!empty($id_group)) { ?>
+      getBranch(<?php echo $id_group;?>,<?php echo isset($branch_code)&&!empty($branch_code) ? $branch_code : '';?>);
+      <?php } else { ?>
+      getBranch($('[name="id_group"] > option:first-child').attr('value'));
+      <?php } ?>
+      $('[name="id_group"]').change(function(event) {
+         $('#htmlbranch').html('<select class="form-control" disabled="disabled"><option>กำลังโหลด</option></select>');
+         getBranch($(this).val());
+      });
+       
+      function getBranch(value, selected='') {
+         $.post('<?php echo MURL.'admin/'.route('report/getBranchByGroupId');?>', {id_group: value, default: selected}, function(data, textStatus, xhr) {
+            $('#htmlbranch').html(data);
+         });
+      }
+   });
+   $('#datatables').DataTable();
+</script>
+      

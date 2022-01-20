@@ -1,0 +1,34 @@
+/*  */
+.room-box {
+	display: block;
+	cursor: pointer;
+	padding: 10px;
+}
+.room-box:hover {
+	background: #eee;
+}
+
+
+/* header */
+body.header-top-bg .content-page::before {
+	background: #F26422;
+}
+body.header-top-bg .iq-top-navbar.fixed-header {
+	background: #F26422;
+}
+.iq-sidebar-logo a span {
+	font-size: 20px;
+}
+.main-menu {
+	background: #333;
+	color: #fff !important;
+	padding-top: 5px !important;
+	padding-bottom: 5px !important; 
+}
+
+
+/* icon */
+.btn i {
+	margin-right: 0;
+}
+
