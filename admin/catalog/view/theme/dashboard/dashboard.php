@@ -68,7 +68,7 @@
                   </div>
                </div>
             </div>
-
+            <?php /* ?>
             <div class="row">
                <div class="col-sm-12">
                   <div class="iq-card">
@@ -119,6 +119,7 @@
                   </div>
                </div>
             </div>
+            <?php */?>
          </div>
       </div>
    </div>
@@ -133,41 +134,41 @@
 
       var paramemter = new Object();
 
-      var path  = '<?php echo route('dashboard/ajaxListTakeEvent');?>';
-      var table = $('#datatables');
-      table.DataTable({
-         processing : true,
-         serverSide : true,
-         searching: false,
-         paging: false,
-         info: false,
-         ordering: false,
-         // order: [[0, "asc"]],
-         columnDefs: [
-            // { targets: 0, orderable: false },
-            // { targets: 7, orderable: false },
-            // { className: "text-center", "targets": [ 0,1,2,3,4,8 ] },
-            // { className: "text-right", "targets": [ 5,6,7 ] }
-         ],
-         ajax : {
-            url : path,
-            type: "POST",
-            data: paramemter,
-            dataFilter: function(data){
-               var json = jQuery.parseJSON( data );
-               console.log(json);
-               return JSON.stringify( json ); // return JSON string
-            }
-         },
-         dataSrc: 'data',
-         columns: [
-            { data: 'no' },
-            { data: 'date' },
-            { data: 'stu_code' },
-            { data: 'stu_name' },
-            { data: 'event_name' },
-         ],
-      });
+      // var path  = '<?php echo route('dashboard/ajaxListTakeEvent');?>';
+      // var table = $('#datatables');
+      // table.DataTable({
+      //    processing : true,
+      //    serverSide : true,
+      //    searching: false,
+      //    paging: false,
+      //    info: false,
+      //    ordering: false,
+      //    // order: [[0, "asc"]],
+      //    columnDefs: [
+      //       // { targets: 0, orderable: false },
+      //       // { targets: 7, orderable: false },
+      //       // { className: "text-center", "targets": [ 0,1,2,3,4,8 ] },
+      //       // { className: "text-right", "targets": [ 5,6,7 ] }
+      //    ],
+      //    ajax : {
+      //       url : path,
+      //       type: "POST",
+      //       data: paramemter,
+      //       dataFilter: function(data){
+      //          var json = jQuery.parseJSON( data );
+      //          console.log(json);
+      //          return JSON.stringify( json ); // return JSON string
+      //       }
+      //    },
+      //    dataSrc: 'data',
+      //    columns: [
+      //       { data: 'no' },
+      //       { data: 'date' },
+      //       { data: 'stu_code' },
+      //       { data: 'stu_name' },
+      //       { data: 'event_name' },
+      //    ],
+      // });
 
    });
 </script>
