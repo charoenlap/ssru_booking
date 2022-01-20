@@ -1,0 +1,13 @@
+# ignore ALL .log files
+*.xlsx
+*.xls
+*.csv
+
+query_insert.txt
+query_update.txt
+
+# ignore ALL files in ANY directory named temp
+required/
+log/
+system/
+qrcode/
