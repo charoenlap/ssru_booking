@@ -9,7 +9,7 @@ class db{
 	private $where_start;
 	private $where_end;
 	private $orderby;
-	private $groupby;
+	private $groupby; 
 	private $limit;
 	private $join;
 	private $prefix;
