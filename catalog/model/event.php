@@ -77,12 +77,12 @@
 			// LEFT JOIN booking_event_type ON booking_event_sub.id_event_type = booking_event_type.id_event_type 
 			// WHERE stu_code='".$stu_code."' AND t_e_status = '".$t_e_status."' AND booking_event_type.event_type_status = 1
 			// GROUP BY booking_event_type.id_event_type ";
-			$sql = "SELECT * FROM booking_take_event te
+			$sql = "SELECT * FROM (SELECT * FROM booking_take_event WHERE stu_code='".$stu_code."' AND t_e_status = '".$t_e_status."') te
 			LEFT JOIN booking_event e ON e.id_event = te.id_event
 			LEFT JOIN booking_student s ON s.id_student = te.id_student
 			LEFT JOIN booking_event_sub es ON es.id_event = e.id_event AND es.id_type_student = s.id_type_student
 			LEFT JOIN booking_event_type et ON et.id_event_type = es.id_event_type
-			WHERE te.stu_code='".$stu_code."' AND te.t_e_status = '".$t_e_status."' AND e.id_event is not null GROUP BY te.id_event ";  
+			WHERE e.id_event is not null GROUP BY te.id_event ";  
 			// echo $sql;exit();
 			$result_event = $this->query($sql);
 			foreach($result_event->rows as $val){
