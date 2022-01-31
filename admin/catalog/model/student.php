@@ -222,46 +222,53 @@
 			$id_group = (isset($data['id_group'])?$data['id_group']:'');
 			$branch_code = (isset($data['branch_code'])?$data['branch_code']:'');
 			$level_code = (isset($data['level_code'])?$data['level_code']:'');
-
+			// echo $stu_code;exit();
 			if(!empty($stu_code)){
 				$where .= " AND booking_student.stu_code like '%".$stu_code."%'";
-			}
-			if(!empty($center_code)){
-				$where .= " AND booking_center.center_code = '".$center_code."'";
-			}
-			$id_group = (isset($data['id_group'])?$data['id_group']:'');
-			if(!empty($id_group)){
-				$where .= " AND booking_group.id_group = '".$id_group."'";
-			}
-			$branch_code = (isset($data['branch_code'])?$data['branch_code']:'');
-			if(!empty($branch_code)){
-				$where .= " AND booking_branch.branch_code  = '".$branch_code."'";
-			}
-			$level_code = (isset($data['level_code'])?$data['level_code']:'');
-			if(!empty($level_code)){
-				$where .= " AND booking_level.level_code  = '".$level_code."'";
-			}
-			$page = ($data['page']-1)*DEFAULT_LIMIT_PAGE;
-			$sql_stu = " FROM booking_student 
-			JOIN booking_type_student
-				ON booking_student.id_type_student = booking_type_student.id_type_student 
-				JOIN booking_group
-				ON booking_student.id_group = booking_group.id_group 
-				JOIN booking_branch
-				ON booking_student.branch_code = booking_branch.branch_code 
-				JOIN booking_center
-				ON booking_student.center_code = booking_center.center_code 
-				JOIN booking_level
-				ON booking_student.level_code = booking_level.level_code
 
-			";
-			// echo $where;exit();
-			$result_stu = $this->query("SELECT * ".$sql_stu.$where.' GROUP BY booking_student.id_student LIMIT '.($page).','.DEFAULT_LIMIT_PAGE);
-			$result_stu_num_rows = $this->query("SELECT * ".$sql_stu.$where.' GROUP BY booking_student.id_student');
-			$result = array(
-				'num_rows' 	=>  $result_stu_num_rows->num_rows,
-				'data'		=>	$result_stu->rows
-			);
+				if(!empty($center_code)){
+					$where .= " AND booking_center.center_code = '".$center_code."'";
+				}
+				$id_group = (isset($data['id_group'])?$data['id_group']:'');
+				if(!empty($id_group)){
+					$where .= " AND booking_group.id_group = '".$id_group."'";
+				}
+				$branch_code = (isset($data['branch_code'])?$data['branch_code']:'');
+				if(!empty($branch_code)){
+					$where .= " AND booking_branch.branch_code  = '".$branch_code."'";
+				}
+				$level_code = (isset($data['level_code'])?$data['level_code']:'');
+				if(!empty($level_code)){
+					$where .= " AND booking_level.level_code  = '".$level_code."'";
+				}
+				$page = ($data['page']-1)*DEFAULT_LIMIT_PAGE;
+				$sql_stu = " FROM booking_student 
+				JOIN booking_type_student
+					ON booking_student.id_type_student = booking_type_student.id_type_student 
+					JOIN booking_group
+					ON booking_student.id_group = booking_group.id_group 
+					JOIN booking_branch
+					ON booking_student.branch_code = booking_branch.branch_code 
+					JOIN booking_center
+					ON booking_student.center_code = booking_center.center_code 
+					JOIN booking_level
+					ON booking_student.level_code = booking_level.level_code
+
+				";
+				$sql = "SELECT * ".$sql_stu.$where.' GROUP BY booking_student.id_student LIMIT '.($page).','.DEFAULT_LIMIT_PAGE;
+				// echo $sql;exit();
+				$result_stu = $this->query($sql);
+				$result_stu_num_rows = $this->query("SELECT * ".$sql_stu.$where.' GROUP BY booking_student.id_student');
+				$result = array(
+					'num_rows' 	=>  $result_stu_num_rows->num_rows,
+					'data'		=>	$result_stu->rows
+				);
+			}else{
+				$result = array(
+					'num_rows' 	=>  0,
+					'data'		=>	array()
+				);
+			}
 			return $result;
 		}
 		public function getStudentById($id_student) {

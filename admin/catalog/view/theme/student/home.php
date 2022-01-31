@@ -28,7 +28,7 @@
                         <div class="col">
                            <label for="">รหัสศูนย์</label>
                            <select name="center_code" class="form-control" id="">
-                              <option value="x">เลือกศูนย์</option>
+                              <option value="">เลือกศูนย์</option>
                               <?php foreach($list_center as $val){?>
                               <option value="<?php echo $val['center_code'];?>" <?php echo ($val['center_code']==get('center_code')?'selected':''); ?>><?php echo $val['center_name'];?></option>
                               <?php } ?>

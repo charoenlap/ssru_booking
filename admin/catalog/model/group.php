@@ -1,10 +1,13 @@
 <?php  
 	class groupModel extends db {
 		public function getGroup($data=array()){
+
 			$result = array();
 			$sql_booking_group = "SELECT * FROM booking_group WHERE del = 0 ORDER BY group_name";
 			$result_booking_group = $this->query($sql_booking_group);
+			// echo "test";exit();
 			// $result_booking_group_num_rows = $this->query("SELECT * ".$sql_booking_group);
+			// var_dump($result_booking_group->rows);exit();
 			$result = array(
 				// 'num_rows' 	=>  $result_booking_group_num_rows->num_rows,
 				'data'		=>	$result_booking_group->rows

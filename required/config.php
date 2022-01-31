@@ -39,7 +39,7 @@ ini_set('max_execution_time', 0);
 
 	// System config 
 	define('DEFAULT_LANGUAGE','2');
-	define('DEFAULT_LIMIT_PAGE','100');
+	define('DEFAULT_LIMIT_PAGE','10');
 
 
 	// define('email_username','support@fsoftpro.com');

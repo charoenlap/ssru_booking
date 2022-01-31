@@ -41,17 +41,17 @@
 					FROM booking_take_event te
 						LEFT JOIN booking_event e ON e.id_event = te.id_event
 						LEFT JOIN booking_student s ON s.id_student = te.id_student
-						LEFT JOIN booking_event_sub es ON es.id_event = e.id_event 
-						AND es.id_type_student = s.id_type_student
+						LEFT JOIN booking_event_sub es ON es.id_event = e.id_event AND es.id_type_student = s.id_type_student
 						LEFT JOIN booking_event_type et ON et.id_event_type = es.id_event_type
 					WHERE s.stu_code='".$stu_code."' 
 						AND te.t_e_status = ".$t_e_status." 
 						AND e.id_event is not null 
 						AND es.id_event is not null 
-						AND et.id_event_type is not null
+			 			AND et.id_event_type is not null
 					GROUP BY et.id_event_type, te.id_event
 			) table_sum GROUP BY id_event_type";
 			// echo $sql;exit();
+
 			$result = $this->query($sql);
 			return $result->rows;
 		}

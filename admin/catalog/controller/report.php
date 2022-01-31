@@ -45,15 +45,17 @@
 			$this->view('report/activity',$data);
 		}
 		public function bookingActivity(){
+
 			check_admin();
 			$data = array();
 			$data['action'] = route('report/bookingActivity');
 
 			$group = $this->model('group');
 			$data['list_group'] = $group->getGroup()['data'];
+			
 			$branch = $this->model('branch');
 			$data['list_branch'] = $branch->getBranch()['data'];
-
+			
 
 			$data['stu_year'] = '';
 			$data['id_group'] = '';

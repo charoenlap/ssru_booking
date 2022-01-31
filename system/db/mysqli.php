@@ -9,6 +9,7 @@ class db{
 	private $where_start;
 	private $where_end;
 	private $orderby;
+	private $groupby;
 	private $limit;
 	private $join;
 	private $prefix;
@@ -16,6 +17,10 @@ class db{
 	private $lastquery;
 	// public $check_open;
 	function __construct(){
+		if (!function_exists('mysqli_init') && !extension_loaded('mysqli')) {
+		    echo 'We don\'t have mysqli!!!';
+		    exit();
+		}
 		$this->db = new mysqli(DB_HOST,DB_USER,DB_PASS,DB_DB);
 		$this->db->query('SET NAMES utf8');
 		if (mysqli_connect_errno()) {
@@ -35,23 +40,18 @@ class db{
 		$this->where_start = -1;
 		$this->where_end = -1;
 		$this->orderby = "";
+		$this->groupby = "";
 		$this->limit = "";
 		$this->join = array();
 		$this->prefix = PREFIX;
 	}
 	function __destruct(){
 		// if($check_open==1){
-			$this->db->close();
+			// $this->db->close();
 		// }
     }
-    public function escape($text_escape=''){
-    	// var_dump($text_escape);
-    	$return = '';
-    	if(!is_array($text_escape)){
-	    	$return = $this->db->real_escape_string($text_escape);
-	    }
-    	
-    	return $return;
+    public function escape($text_escape){
+    	return $this->db->real_escape_string($text_escape);
     }
     // public function real_escape_string($string){
     // 	return $this->db->real_escape_string($string);
@@ -72,7 +72,6 @@ class db{
 				$query = $this->db->query("SELECT FOUND_ROWS()");
 
 				$var = $query->fetch_row();
-				$result->sql = $sql;
 				if($var){
 					$result->num_rows = $var[0];
 				}else{
@@ -89,7 +88,7 @@ class db{
 			}
 		} else {
 			// echo $this->db->error;
-			trigger_error('<div style="position:fixed;width:100%;top:0px;background:#fff;left:0px;border:1px solid #3e3e3e;z-index:1;padding:10px;"><div><b>Error Database</b></div>'.$sql.'<br><b>Detail: <span style="color:red;">' . $this->db->error  . '</span></b></div>');
+			trigger_error($sql.'Error: <span style="color:red;">' . $this->db->error  . '</span><br />Error No: <span style="color:orange;">' . $this->db->errno.'</span>');
 		}
 		return $sql;
 	}
@@ -103,6 +102,7 @@ class db{
 		$this->where_start = -1;
 		$this->where_end = -1;
 		$this->orderby = "";
+		$this->groupby = "";
 		$this->limit = "";
 		$this->join = array();
 		$this->prefix = PREFIX;
@@ -113,28 +113,36 @@ class db{
 	public function order_by($sort, $type="asc") {
 		$this->orderby = " ORDER BY $sort ".strtoupper($type);
 	}
+	public function group_by($column) {
+		$this->groupby = " GROUP BY $column";
+	}
 	public function limit($start,$limit) {
 		$this->limit = " LIMIT $start,$limit";
 	}
-	public function where($name, $value, $type="=") {
+	public function where($name, $value = '', $type="=") {
 		(int)$this->where_count++;
 		$cut = "";
 		if ($this->where_count>0) {
 			$cut = "AND";
 		}
 		$g_start = ($this->where_start==$this->where_count) ? "(" : "";
-		$this->where[] = " $cut $g_start $name $type '".$this->escape($value)."' ";
+		if (!empty($value) || is_int($value)) {
+			$this->where[] = " $cut $g_start $name $type '".$this->escape($value)."' ";
+		} else {
+			$this->where[] = " $cut $g_start $name ";
+		}
 	}
-	public function where_or($name, $value, $type="=") {
+	public function where_or($name, $value = '', $type="=") {
 		(int)$this->where_count++;
 		$cut = "";
 		if ($this->where_count>0) {
 			$cut = "OR";
 		}
 		$g_start = ($this->where_start==$this->where_count) ? "(" : "";
-		$this->where[] = " $cut $g_start $name $type '".$this->escape($value)."' ";
+		$this->where[] = " $cut $g_start $name $type '".$this->escape($value)."' ";	
+
 	}
-	public function where_like($name, $value, $type="AND") {
+	public function where_like($name, $value = '', $type="AND") {
 		(int)$this->where_count++;
 		$cut = "";
 		if ($this->where_count>0) {
@@ -153,17 +161,18 @@ class db{
 		$this->join[] = " $type JOIN ".$this->prefix."$table ON $condition";
 	}
 	public function select($select) {
-		$this->select = $select;
+		$this->select = isset($select) ? $select : '*';
 	}
+	
 	public function get($table) {
-		$sql = "SELECT $this->select FROM ".$this->prefix."$table";
+		$sql = "SELECT ".(isset($this->select)?$this->select:'*')." FROM ".$this->prefix.(isset($table)?$table:'');
 		if (isset($this->join) && count($this->join)>0) {
 			foreach ($this->join as $k => $j) {
 				$sql .= $j;
 			} 
 		}
-		if (count($this->where)>0||count($this->where_or)>0||count($this->like)>0) {
-			$sql .= " WHERE";
+		if (count($this->where)>0||count($this->where_or)>0||count($this->where_like)>0) {
+			$sql .= " WHERE ";
 		}
 
 		if (!empty($this->where) && count($this->where)>0) {
@@ -172,6 +181,9 @@ class db{
 			}
 		}
 
+		if (isset($this->groupby) && !empty($this->groupby)) {
+			$sql .= $this->groupby;
+		}
 		if (isset($this->orderby) && !empty($this->orderby)) {
 			$sql .= $this->orderby;
 		}
@@ -224,6 +236,7 @@ class db{
 		// var_dump($sql->rows); exit();
     	return $sql;
     }
+    
     public function update($table,$input,$where=''){
     	$result = false;
 		$update = 'update '.PREFIX.$table.' set';	
@@ -238,7 +251,7 @@ class db{
 			$i++;
 		}
 		if (!empty($this->where) && count($this->where)>0) {
-			$update .= "WHERE ";
+			$update .= " WHERE ";
 			foreach ($this->where as $k => $w) {
 				$update .= " $w";
 			}
@@ -255,6 +268,7 @@ class db{
 		$fp = fopen(DOCUMENT_ROOT.'log/query_update.txt', 'a+');
 		fwrite($fp, date('Y-m-d H:i:s').' : '.$update.PHP_EOL);
 		fclose($fp);
+		$this->clean();
 
 		// echo $update;
 		$result = ($query?true:false);
@@ -309,6 +323,54 @@ class db{
 		}
 		return false;
 	}
+ //    public function update($table,$input,$where){
+ //    	$result = false;
+	// 	$update = 'update '.PREFIX.$table.' set';	
+	// 	$i=1;
+	// 	foreach($input as $key => $value){
+	// 		//$value = $this->db->real_escape_string($value);
+	// 		if($value==""){ $update .= " $key = NULL"; }else{
+	// 			$value = iconv(mb_detect_encoding($value, mb_detect_order(), true), "UTF-8", $value);
+	// 			$update .= " `$key` = '".$value."'";
+	// 		}
+	// 		if($i!=count($input)){ $update .= ","; }
+	// 		$i++;
+	// 	}
+	// 	$update .= " where $where";
+	// 	// echo $update;exit();
+	// 	$query = $this->db->query($update) or die($this->db->error.'<br>'.$update);
+	// 	// echo $update;
+	// 	$result = ($query?true:false);
+	//     return $result;
+	// }
+	// public function insert($table,$input){
+	// 	$insert = 'insert into '.PREFIX.$table.' set';	
+	// 	$i=1;
+
+	// 	foreach($input as $key => $value){
+	// 		//$value = $this->db->real_escape_string($value);
+	// 		$insert .= " `$key` = '".$value."'";
+	// 		if($i!=count($input)){ $insert .= ","; }
+	// 		$i++;
+	// 	}
+	// 	// echo $insert;
+	// 	$query = $this->db->query($insert) or die($this->db->error);
+	// 	if (!$this->db->errno) {
+	// 		$result = ($query?$this->getLastId():false);
+	// 	} else {
+	// 		trigger_error('Error: ' . $this->db->error  . '<br />Error No: ' . $this->db->errno . '<br />' . $insert);
+	// 	}
+	//     return $result;
+	// }
+	// public function delete($table,$where){
+	// 	$result = false;
+	// 	$delete = "delete from ".PREFIX."$table where $where";
+	// 	$query = $this->db->query($delete) or die("Error: ".$delete);
+	// 	if($query){ 	
+ //            $result = true;
+ //        }
+ //        return $result;
+	// }
 	public function last_query() {
 		return $this->lastquery;
 	}

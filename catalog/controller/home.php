@@ -17,15 +17,16 @@
 		    		$result_login = $student->login($data_login);
 		    		if($result_login['result']=='success'){
 		    			$behavior = (int)$result_login['data']['stu_point_behavior']-(int)$result_login['behavior'];
+		    			// var_dump($result_login);exit();
 		    			$this->setSession('id_student',$result_login['data']['id_student']);
 		    			$this->setSession('stu_detail',$result_login['data']);
 		    			$this->setSession('stu_code',$result_login['data']['stu_code']);
 		    			$this->setSession('stu_prefix',$result_login['data']['stu_prefix']);
 		    			$this->setSession('stu_name',$result_login['data']['stu_name']);
 		    			$this->setSession('stu_lname',$result_login['data']['stu_lname']);
-		    			$this->setSession('stu_group',$result_login['data']['stu_group']);
-		    			$this->setSession('stu_branch',$result_login['data']['stu_branch']);
-						// $this->setSession('stu_point_event',$result_login['event_unit']);
+		    			// $this->setSession('stu_group',$result_login['data']['stu_group']);
+		    			// $this->setSession('stu_branch',$result_login['data']['stu_branch']);
+						$this->setSession('stu_point_event',$result_login['event_unit']);
 						// ! get New Sub 
 						$event = $this->model('event');
 						$data_select = array(
@@ -43,11 +44,13 @@
 						$sum_event = 0;
 						$list_event_approve =  array();
 						$list_event_approve = $event->listSumApproveEvent($data_select);
+						// var_dump($list_event_approve);exit();
 						foreach ($list_event_approve as $key => $value) {
 							$sum_event += (double)$value['event_unit'];
 						}
 						
 						// $this->setSession('stu_point_event', $event->sumApproveEvent(array('stu_code'=>$result_login['data']['stu_code'],'t_e_status'=>3)));
+						// echo $sum_event;exit();
 						$this->setSession('stu_point_event', $sum_event);
 	    				$this->setSession('stu_point_behavior',$behavior);
 	    				$this->setSession('stu_code_edu',$result_login['data']['stu_code_edu']);

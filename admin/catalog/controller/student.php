@@ -21,25 +21,26 @@
 			
 			
 			$link = route('student/home');
-			// $page = (int)(get('page')?get('page'):1);
+			$page = (int)(get('page')?get('page'):1);
 
-			$data['center_code'] = (get('center_code')?get('center_code'):'x');
-			$data['level_code'] = (get('level_code')?get('level_code'):'');
-			$data['stu_code'] 	= (get('stu_code')?get('stu_code'):'');
-			$data['id_group'] 	= (get('id_group')?get('id_group'):'');
-			$data['branch_code'] = (get('branch_code')?get('branch_code'):'');
+			$data['center_code'] 	= $center_code 	= (get('center_code')?get('center_code'):'');
+			$data['level_code'] 	= $level_code 	= (get('level_code')?get('level_code'):'');
+			$data['stu_code'] 		= $stu_code 	= (get('stu_code')?get('stu_code'):'');
+			$data['id_group'] 		= $id_group 	= (get('id_group')?get('id_group'):'');
+			$data['branch_code'] 	= $branch_code 	= (get('branch_code')?get('branch_code'):'');
 
 			// echo $stu_code;exit();
-			// $data_student = array(
-			// 	'page' => $page,
-			// 	'center_code' 	=> $center_code,
-			// 	'level_code' 	=> $level_code,
-			// 	'stu_code'		=> $stu_code,
-			// 	'id_group'		=> $id_group,
-			// 	'branch_code'	=> $branch_code
-			// );
-			// $result_student = $student->getstudent($data_student);
-			// $data['result_student'] = $result_student['data'];
+			
+			$data_student = array(
+				'page' => $page,
+				'center_code' 	=> $center_code,
+				'level_code' 	=> $level_code,
+				'stu_code'		=> $stu_code,
+				'id_group'		=> $id_group,
+				'branch_code'	=> $branch_code
+			);
+			$result_student = $student->getstudent($data_student);
+			$data['result_student'] = $result_student['data'];
 			// $data_pageing = array(
 			// 	'total' 	=> $result_student['num_rows'],
 			// 	'link' 		=> $link,
