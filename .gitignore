@@ -9,5 +9,4 @@ query_update.txt
 # ignore ALL files in ANY directory named temp
 required/
 log/
-system/
 qrcode/
