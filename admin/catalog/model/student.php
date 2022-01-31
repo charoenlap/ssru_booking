@@ -223,8 +223,9 @@
 			$branch_code = (isset($data['branch_code'])?$data['branch_code']:'');
 			$level_code = (isset($data['level_code'])?$data['level_code']:'');
 			// echo $stu_code;exit();
+			$where_student = '';
 			if(!empty($stu_code)){
-				$where .= " AND booking_student.stu_code like '%".$stu_code."%'";
+				$where_student .= " WHERE booking_student.stu_code like '%".$stu_code."%'";
 
 				if(!empty($center_code)){
 					$where .= " AND booking_center.center_code = '".$center_code."'";
@@ -242,17 +243,12 @@
 					$where .= " AND booking_level.level_code  = '".$level_code."'";
 				}
 				$page = ($data['page']-1)*DEFAULT_LIMIT_PAGE;
-				$sql_stu = " FROM booking_student 
-				JOIN booking_type_student
-					ON booking_student.id_type_student = booking_type_student.id_type_student 
-					JOIN booking_group
-					ON booking_student.id_group = booking_group.id_group 
-					JOIN booking_branch
-					ON booking_student.branch_code = booking_branch.branch_code 
-					JOIN booking_center
-					ON booking_student.center_code = booking_center.center_code 
-					JOIN booking_level
-					ON booking_student.level_code = booking_level.level_code
+				$sql_stu = " FROM (SELECT * FROM booking_student ".$where_student.") booking_student 
+				JOIN booking_type_student ON booking_student.id_type_student = booking_type_student.id_type_student 
+				JOIN booking_group ON booking_student.id_group = booking_group.id_group 
+				JOIN booking_branch ON booking_student.branch_code = booking_branch.branch_code 
+				JOIN booking_center ON booking_student.center_code = booking_center.center_code 
+				JOIN booking_level ON booking_student.level_code = booking_level.level_code
 
 				";
 				$sql = "SELECT * ".$sql_stu.$where.' GROUP BY booking_student.id_student LIMIT '.($page).','.DEFAULT_LIMIT_PAGE;
