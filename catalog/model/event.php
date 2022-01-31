@@ -38,14 +38,13 @@
 						et.event_type_name,
 						SUM(e.event_unit) as event_unit, 
 						SUM(e.event_hour) as event_hour 
-					FROM booking_take_event te
+					FROM (SELECT * FROM booking_take_event WHERE t_e_status = ".$t_e_status." ) te
 						LEFT JOIN booking_event e ON e.id_event = te.id_event
-						LEFT JOIN booking_student s ON s.id_student = te.id_student
+						LEFT JOIN (SELECT * FROM booking_student WHERE booking_student.stu_code='".$stu_code."') s ON s.id_student = te.id_student
 						LEFT JOIN booking_event_sub es ON es.id_event = e.id_event AND es.id_type_student = s.id_type_student
 						LEFT JOIN booking_event_type et ON et.id_event_type = es.id_event_type
-					WHERE s.stu_code='".$stu_code."' 
-						AND te.t_e_status = ".$t_e_status." 
-						AND e.id_event is not null 
+					WHERE  
+						e.id_event is not null 
 						AND es.id_event is not null 
 			 			AND et.id_event_type is not null
 					GROUP BY et.id_event_type, te.id_event
@@ -77,7 +76,7 @@
 			// LEFT JOIN booking_event_type ON booking_event_sub.id_event_type = booking_event_type.id_event_type 
 			// WHERE stu_code='".$stu_code."' AND t_e_status = '".$t_e_status."' AND booking_event_type.event_type_status = 1
 			// GROUP BY booking_event_type.id_event_type ";
-			$sql = "SELECT * FROM (SELECT * FROM booking_take_event WHERE stu_code='".$stu_code."' AND t_e_status = '".$t_e_status."') te
+			$sql = "SELECT * FROM (SELECT * FROM booking_take_event WHERE booking_take_event.stu_code='".$stu_code."' AND booking_take_event.t_e_status = '".$t_e_status."') te
 			LEFT JOIN booking_event e ON e.id_event = te.id_event
 			LEFT JOIN booking_student s ON s.id_student = te.id_student
 			LEFT JOIN booking_event_sub es ON es.id_event = e.id_event AND es.id_type_student = s.id_type_student
@@ -107,6 +106,7 @@
 			LEFT JOIN booking_student s ON s.id_student = te.id_student
 			WHERE s.stu_code='".$stu_code."' AND te.t_e_status = ".$t_e_status;
 			$result_check_te = $this->query($sql_check_te);
+			// var_dump($result_check_te->num_rows);exit();
 			return $result_check_te->num_rows;
 		}
 		public function check_event($data=array()){
@@ -129,9 +129,9 @@
 		public function getEvent($data=array()){
 			$id_event = (int)$data['id_event'];
 			$stu_code = $data['stu_code'];
-			$sql = "SELECT * FROM booking_take_event 
+			$sql = "SELECT * FROM (SELECT * FROM booking_take_event WHERE booking_take_event.id_event='".$id_event."' AND booking_take_event.stu_code='".$stu_code."') booking_take_event 
 			LEFT JOIN booking_event ON booking_take_event.id_event = booking_event.id_event 
-			WHERE booking_take_event.id_event='".$id_event."' AND stu_code='".$stu_code."'";
+			";
 			$result_check = $this->query($sql);
 			$result = array();
 			if($result_check->num_rows>0){
@@ -147,17 +147,19 @@
 			$current_year = (int)$data['current_year'];
 
 			$where = '';
+			$where_booking_event = '';
+			$where_booking_event_sub = '';
 			if(!empty($date_start) AND !empty($date_end)){
-				$where .= " AND (booking_event.event_date_start >= '".$date_start."' AND booking_event.event_date_end <= '".$date_end."')";
+				$where_booking_event .= " WHERE (booking_event.event_date_start >= '".$date_start."' AND booking_event.event_date_end <= '".$date_end."')";
 			}
 			if(!empty($list_event_type)){
-				$where .= " AND (booking_event_sub.id_event_type = '".$list_event_type."') ";
+				$where_booking_event_sub .= " WHERE (booking_event_sub.id_event_type = '".$list_event_type."') ";
 			}
 			// $where .= " AND booking_event_sub.id_type_student = '".$id_type_student."' AND booking_event_sub.year_".$current_year." = '1'";
 			$where .= " AND booking_event_sub.id_type_student = '".$id_type_student."' ";
 			$result = array();
-			$sql = "SELECT * FROM booking_event 
-			LEFT JOIN booking_event_sub ON booking_event.id_event = booking_event_sub.id_event 
+			$sql = "SELECT * FROM ( SELECT * FROM booking_event ".$where_booking_event." ) booking_event 
+			LEFT JOIN (SELECT * FROM booking_event_sub ".$where_booking_event_sub.") booking_event_sub ON booking_event.id_event = booking_event_sub.id_event 
 			LEFT JOiN booking_event_type ON booking_event_type.id_event_type = booking_event_sub.id_event_type 
 			LEFT JOIN booking_type_student ON booking_type_student.id_type_student = booking_event_sub.id_type_student 
 			WHERE booking_event.event_status <> 3 AND booking_event.event_show = 1 ".$where." ORDER BY booking_event.event_date_start ASC ";
@@ -168,9 +170,9 @@
 			$result = array();
 			$id_student = (int)$data['id_student'];
 			$status = isset($data['status']) ? (int)$data['status'] : 0;
-			$sql = "SELECT * FROM booking_take_event 
+			$sql = "SELECT * FROM (SELECT * FROM booking_take_event WHERE booking_take_event.id_student = '".$id_student."' AND (booking_take_event.t_e_status = '".$status."') ) booking_take_event 
 			LEFT JOIN booking_event ON booking_take_event.id_event = booking_event.id_event 
-			WHERE booking_take_event.id_student = '".$id_student."' AND (booking_take_event.t_e_status = '".$status."') AND booking_event.id_event is not null ";
+			WHERE  booking_event.id_event is not null ";
 			$result = $this->query($sql)->rows;
 			return $result;
 		}
